@@ -78,6 +78,7 @@ public class Main {
 
         if (userInput == 1){
             displayClientInfos();
+            receptionist();
         }
         if (userInput == 2){
             userType();
