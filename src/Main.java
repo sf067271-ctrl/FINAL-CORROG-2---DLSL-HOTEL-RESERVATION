@@ -92,8 +92,8 @@ public class Main {
     public static void client(){
         System.out.println("====== Welcome Client ======");
 
-        System.out.println("[1] Back");
-        System.out.println("[2] Register");
+        System.out.println("[1] Register");
+        System.out.println("[2] Back");
 
         int userInput = userChoiceValidation("client");
 
@@ -102,10 +102,10 @@ public class Main {
         // until an acceptable number is inputted
         while (!isValid) {
             if (userInput == 1) {
-                userType();
+                registration();
                 isValid = true;
             } else if (userInput == 2) {
-                registration();
+                userType();
                 isValid = true;
             } else {
                 System.out.println("Invalid input!");
