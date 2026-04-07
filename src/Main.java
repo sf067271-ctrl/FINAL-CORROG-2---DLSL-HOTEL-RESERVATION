@@ -35,7 +35,7 @@ public class Main {
         System.out.println("    Welcome to DLSL Hotel Reservation!");
         System.out.println("==========================================");
         System.out.println("[1] Client");
-        System.out.println("[2] Staff");
+        System.out.println("[2] Receptionist");
         System.out.println("[3] Manager");
         System.out.println("[0] Exit");
 
