@@ -78,7 +78,7 @@ public class Main {
         sc.nextLine();
 
         if (userInput == 1){
-            ();
+            displayClientInfos();
         }
         if (userInput == 2)userType();
         
