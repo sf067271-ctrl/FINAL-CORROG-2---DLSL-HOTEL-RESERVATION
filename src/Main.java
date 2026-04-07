@@ -66,30 +66,55 @@ public class Main {
 
     // MAKE SURE TO ADD A ADMIN ACCOUNT IN ORDER TO ACCESS THE STAFF
     public static void receptionist(){
-        System.out.println("====== Welcome Receptionist ======");
-
-        System.out.println("1. View Clients Reservations");
-        System.out.println("2. Back");
-
-
-        System.out.print("Enter your choice: ");
-        int userInput = sc.nextInt();
-        sc.nextLine();
-
-        if (userInput == 1){
-            displayClientInfos();
-            receptionist();
-        }
-        if (userInput == 2){
-            userType();
-        }
+        boolean exit = false;
         
-//        if (userInput == 2)staffClientReservation();
+        while (!exit){
+            System.out.println("\n====== Welcome Receptionist ======");
+            System.out.println("1. View Client Information");
+            System.out.println("2. View Reservation Records");
+            System.out.println("3. Sort Reservations by Date");
+            System.out.println("4. Filter Fully Paid Reservations");
+            System.out.println("5. Filter Reservations with Balance");
+            System.out.println("6. Check-in Guest");
+            System.out.println("7. Back");
+
+            int userInput = userChoiceValidation("userType");
+
+            switch (userInput){
+                case 1:
+                    displayClientInfos();
+                    break;
+
+                case 2:
+                    displayReservations();
+                    break;
+
+                case 3:
+                    sortReservationsByDate();
+                    break;
+
+                case 4:
+                    filterReservations("FULLY_PAID");
+                    break;
+
+                case 5:
+                    filterReservations("PARTIAL");
+                    break;
+
+                case 6:
+                    checkInGuest();
+                    break;
+
+                case 7:
+                    exit = true;
+                    userType();
+                    break;
+
+                default:
+                    System.out.println("Invalid input.");
+        }
     }
-    // CONTINUE
-//    public static void staffClientReservation () {
-//        boolean isClientIDexist = clientFileReader();
-//    }
+}
 
     public static void client(){
         System.out.println("====== Welcome Client ======");
@@ -664,9 +689,10 @@ public class Main {
     }
 
     // CHANGE THE FUNCTION NAME
-    public static boolean confirmationOfReservation (int totalBalance, int lunchAndDinner, int singleRoom, int doubleRoom, int kingRoom, int suiteRoom, int exceededGuests){
+    public static boolean confirmationOfReservation (int totalBalance, int lunchAndDinner, int singleRoom, int doubleRoom, int kingRoom, int suiteRoom, int exceededGuests,
+                                                    String clientID, String clientName, String date){
 
-        double thirtyPercent = (double) totalBalance * 0.3;
+        double thirtyPercent = (double) totalBalance * 0.3;    
         double fiftyPercent = (double) totalBalance * 0.5;
 
         String receiptConfirmation = "\n\nHere are the information about your reservation:" +
@@ -695,14 +721,16 @@ public class Main {
         }
         System.out.printf("\n\t\t\t\t\t\t\t     Total: ₱ %.2f", (double) totalBalance);
 
-        boolean isConfirmed = clientPaymentPlan(totalBalance, thirtyPercent, fiftyPercent);
+        boolean isConfirmed = clientPaymentPlan(totalBalance, thirtyPercent, fiftyPercent, clientID, clientName, date);
 
         return isConfirmed;
     }
 
     // MAKE SURE TO USE THE clientReserveFileUpdater FUNCTION
     // TO UPDATE THE RESERVE TEXT FILE
-    public static boolean clientPaymentPlan (int totalBalance, double thirtyPercent, double fiftyPercent){
+    public static boolean clientPaymentPlan (int totalBalance, double thirtyPercent, double fiftyPercent,
+        String clientID, String clientName, String date){
+        
         String paymentOptions = "\n\n=== Payment Plan ===" +
                 "\nTotal Balance: ₱ " + totalBalance + ".00" +
                 "\nTo confirm your reservation, you must choose your payment plan:" +
@@ -737,20 +765,37 @@ public class Main {
 
         boolean isConfirmed = yesAndNolValidation("conPay");
 
+        if (isConfirmed) {
+            double paidAmount = 0;
+            
+            if (userPlan == 1) paidAmount = thirtyPercent;
+            else if (userPlan == 2) paidAmount = fiftyPercent;
+            else if (userPlan == 3) paidAmount = totalBalance;
+            
+            double balance = totalBalance - paidAmount;
+            String status = (balance == 0) ? "FULLY_PAID" : "PARTIAL";
+            
+            clientReserveFileUpdater(clientID, clientName, date,
+            totalBalance, paidAmount, balance, status);
+}
+
         return isConfirmed;
     }
     // CONTINUE
     // FUNCTION TO UPDATE THE RESERVE FILE
     // WHEN THE CLIENT ARE DONE WITH THE RESERVATION
-    public static void clientReserveFileUpdater(){
-//        try  {
-//            FileWriter fw = new FileWriter(clientFile, true);
-//            fw.write("\n" + clientID + "|" + fullName + "|" + address + "|" + contact + "|" + email + "|");
-//            fw.close();
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        }
+   public static void clientReserveFileUpdater
+    (String clientID, String name, String date, double total,
+    double paid, double balance, String status) {
+    try {
+        FileWriter fw = new FileWriter(reserveFile, true);
+        fw.write("\n" + clientID + "|" + name + "|" + date + "|" +
+                 total + "|" + paid + "|" + balance + "|" + status);
+        fw.close();
+    } catch (IOException e) {
+        System.out.println("Error writing reservation file.");
     }
+}
 
     // CONTINUE
     // Make sure to check if the client has already
@@ -841,6 +886,30 @@ public class Main {
         } else {
             clientPersonalInformation();
         }   
+    }
+    public static void displayReservations() {
+    System.out.println("\n=== RESERVATION LIST ===");
+
+    System.out.printf("%-12s %-20s %-12s %-10s %-10s %-10s %-15s\n",
+            "ID", "Name", "Date", "Total", "Paid", "Balance", "Status");
+
+    System.out.println("-------------------------------------------------------------------------------------------");
+
+    try (BufferedReader br = new BufferedReader(new FileReader(reserveFile))) {
+        String line;
+
+        while ((line = br.readLine()) != null) {
+            String[] data = line.split("\\|");
+
+            if (data.length >= 7) {
+                System.out.printf("%-12s %-20s %-12s %-10s %-10s %-10s %-15s\n",
+                        data[0], data[1], data[2],
+                        data[3], data[4], data[5], data[6]);
+            }
+        }
+
+    } catch (IOException e) {
+        System.out.println("Error reading reservation file.");
     }
 
     public static void main(String[] args) {
