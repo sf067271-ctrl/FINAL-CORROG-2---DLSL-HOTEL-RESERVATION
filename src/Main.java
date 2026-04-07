@@ -25,9 +25,9 @@ public class Main {
     /// VALIDATION
 
     // USE TO CREATE A NEW TEXT FILE
-    static File clientFile = new File("CLIENT");
-    static File reserveFile = new File("RESERVE");
-    static File cancelledFile = new File("CANCELLED");
+    static File clientFile = new File("CLIENT.txt");
+    static File reserveFile = new File("RESERVE.txt");
+    static File cancelledFile = new File("CANCELLED.txt");
 
     static Scanner sc = new Scanner(System.in);
 
@@ -51,7 +51,7 @@ public class Main {
                 client();
                 isValid = true;
             } else if (userInput == 2) {
-                staff();
+                receptionist();
                 isValid = true;
             } else if (userInput == 3) {
                 // Call MANAGER FUNCTION
@@ -66,18 +66,22 @@ public class Main {
     }
 
     // MAKE SURE TO ADD A ADMIN ACCOUNT IN ORDER TO ACCESS THE STAFF
-    public static void staff (){
-        System.out.println("====== Welcome Staff ======");
+    public static void receptionist(){
+        System.out.println("====== Welcome Receptionist ======");
 
-        System.out.println("1. Back");
-        System.out.println("2. View Clients Reservations");
+        System.out.println("1. View Clients Reservations");
+        System.out.println("2. Back");
 
 
         System.out.print("Enter your choice: ");
         int userInput = sc.nextInt();
         sc.nextLine();
 
-        if (userInput == 1)userType();
+        if (userInput == 1){
+            ();
+        }
+        if (userInput == 2)userType();
+        
 //        if (userInput == 2)staffClientReservation();
     }
     // CONTINUE
@@ -360,10 +364,10 @@ public class Main {
         // Checks if the CLIENT ID exists or not
         boolean isClientIdExists = false;
 
-        System.out.printf("%-10s %-20s %-30s %-15s %-25s\n",
+        System.out.printf("%-12s %-20s %-25s %-15s %-25s\n",
                 "ID", "Name", "Address", "Contact", "Email");
 
-        System.out.println("-----------------------------------------------------------------------------------------------");
+        System.out.println("------------------------------------------------------------------------------------------------");
 
 
         try (BufferedReader br = new BufferedReader(new FileReader(clientFile))) {
@@ -371,10 +375,13 @@ public class Main {
 
             while ((line = br.readLine()) != null) {
                 String[] clientInfos = line.split("\\|");
-
-                // add a for loop to print the table
-
-                if (clientInfos[0].equals(clientID)) {
+                
+                if (clientInfos.length >= 5){
+                    System.out.printf("%-12s %-20s %-25s %-15s %-25s\n", clientInfos[0], clientInfos[1], clientInfos[2],
+                    clientInfos[3], clientInfos[4]);
+                }
+                
+                 if (clientInfos[0].equals(clientID)) {
                     isClientIdExists = true;
                     break;
                 }
@@ -413,6 +420,30 @@ public class Main {
 
         return isClientIdExists;
     }
+
+    public static void displayClientInfos() {
+    System.out.println("\n=== CLIENT LIST ===");
+
+    System.out.printf("%-12s %-20s %-25s %-15s %-25s\n",
+            "ID", "Name", "Address", "Contact", "Email");
+    System.out.println("------------------------------------------------------------------------------------------------");
+
+    try (BufferedReader br = new BufferedReader(new FileReader(clientFile))) {
+        String line;
+        
+        while ((line = br.readLine()) != null) {
+            String[] clientInfos = line.split("\\|");
+
+            if (clientInfos.length >= 5) {
+                System.out.printf("%-12s %-20s %-25s %-15s %-25s\n",
+                clientInfos[0], clientInfos[1], clientInfos[2], clientInfos[3], clientInfos[4]);
+            }
+        }
+
+    } catch (IOException e) {
+        System.out.println("Error reading file.");
+    }
+}
 
     // ADD IT ON A TEXT FILE
     public static void facilitiesDescriptions (int numberOfGuests){
@@ -807,7 +838,7 @@ public class Main {
             reservationTransaction();
         } else {
             clientPersonalInformation();
-        }
+        }   
     }
 
     public static void main(String[] args) {
