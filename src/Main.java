@@ -8,7 +8,6 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.time.LocalDate;
 
 public class Main {
 
@@ -80,7 +79,9 @@ public class Main {
         if (userInput == 1){
             displayClientInfos();
         }
-        if (userInput == 2)userType();
+        if (userInput == 2){
+            userType();
+        }
         
 //        if (userInput == 2)staffClientReservation();
     }
