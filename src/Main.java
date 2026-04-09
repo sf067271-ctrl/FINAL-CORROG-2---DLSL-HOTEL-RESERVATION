@@ -178,7 +178,7 @@ public class Main {
         // MAKE SURE THAT THEY DON'T SET THE DATE IN THE PAST
         // ONLY ALLOW 6 MONTHS AHEAD OF RESERVATION
         String regexDate = "^(0[1-9]|1[0-2])/((0[1-9]|[1-2][0-9])|30)/[0-9]{4}$";
-//        String regexID = "RES-([A-Za-z0-9]{6})$";
+        // String regexID = "RES-([A-Za-z0-9]{6})$";
 
         do {
             if (valiType.equals("Full")) {
@@ -260,13 +260,18 @@ public class Main {
 
         do {
             try {
-                if (valiType.equals("facilityQuantity") || valiType.equals("numberOfGuests") || valiType.equals("userType") || valiType.equals("client") || valiType.equals("lunchAndDinnerOffer") || valiType.equals("userPlan")) {
+                if (valiType.equals("facilityQuantity") || valiType.equals("numberOfGuests") || valiType.equals("userType") || valiType.equals("client") || valiType.equals("lunchAndDinnerOffer") || valiType.equals("userPlan") || valiType.equals("facilityChoice"))  {
                     if (valiType.equals("facilityQuantity") && gotReject) {
-                        System.out.print("Please input the quantity of your chosen facility: ");
+                        System.out.print("Please input the number of facilities you want to reserve: ");
                     }
                     if (valiType.equals("numberOfGuests") && gotReject) {
-                        System.out.print("Please input the quantity of your chosen guests: ");
+                        System.out.print("Number of Guests: ");
                     }
+
+                    if (valiType.equals("facilityChoice") && gotReject) {
+                        System.out.print("Please provide your facility choice: ");
+                    }
+
                     if (!valiType.equals("facilityQuantity") && !valiType.equals("numberOfGuests")) {
                         System.out.print("Enter your choice: ");
                     }
@@ -428,14 +433,10 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] arr = line.split("\\|");
 
-                for (int i = 0; i < arr.length; i++) {
-                    if (arr[0].equals(clientID)) {
-                        isClientIdExists = true;
-                        break;
-                    }
+                if (arr[0].equals(clientID)) {
+                    isClientIdExists = true;
+                    break;
                 }
-
-                if (isClientIdExists) break;
             }
         } catch (IOException e) {
             System.out.println("Failed to read.");
@@ -570,7 +571,7 @@ public class Main {
         if (isView) facilitiesDescriptions(numberOfGuests);
 
         // Get the total number of facilities
-        System.out.print("\nHow many facilities do you want to reserve?:");
+        System.out.print("\nPlease input the number of facilities you want to reserve:");
         totalFacilityToReserve = userChoiceValidation("facilityQuantity");
 
         // Reminder of the additional 500 peso per extra person
@@ -580,10 +581,8 @@ public class Main {
         // Prompt the client to ask what facility of choice they want to choose
         // Also has its own validation
         do {
-            try {
                 System.out.printf("\nPlease provide your facility of choice (%d) remaining: ", totalFacilityToReserve);
-                userInput = sc.nextLine();
-                int userNum = Integer.parseInt(userInput);
+                int userNum = userChoiceValidation("facilityChoice");
 
                 if (userNum == 1) {
                     totalBalance += 1500;
@@ -608,9 +607,6 @@ public class Main {
                 } else {
                     System.out.println("Invalid choice. Try again.");
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid Input");
-            }
         } while (totalFacilityToReserve != 0);
 
         // Check if the number of guests
@@ -788,6 +784,26 @@ public class Main {
         }
     }
 
+    public static boolean isClientReservedChecker (String clientID){
+        boolean isClientReserved = false;
+        String line;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(reserveFile))) {
+            while ((line = br.readLine()) != null) {
+                String[] arr = line.split("\\|");
+
+                if (arr[0].equals(clientID)) {
+                    isClientReserved = true;
+                    break;
+                }
+
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to read.");
+        }
+
+        return  isClientReserved;
+    }
     // CONTINUE
     // Make sure to check if the client has already
     // made his reservation
@@ -805,8 +821,9 @@ public class Main {
         }
 
         boolean isClientExists = clientIDChecker(userInput);
+        boolean isClientReserved = isClientReservedChecker(userInput);
 
-        if (isClientExists) {
+        if (isClientExists && !isClientReserved) {
             clientIdUsed = userInput;
             System.out.println("===========================");
             System.out.println("    CLIENT RESERVATION");
@@ -851,7 +868,11 @@ public class Main {
             } else {
                 isReservationConfirmed = facilities(numberOfGuests, date);
             }
-        } else {
+
+        } else if (isClientReserved && isClientExists) {
+            System.out.println("You already have an active reservation. " +
+                    "\nPlease proceed to check in or visit the receptionist once you are done with your reservation.");
+        }else {
             System.out.println("Your CLIENT ID was not found. Please try again.");
             // This is called a recursion, where you call its own function
             reservationTransaction();
@@ -861,7 +882,6 @@ public class Main {
     // CONTINUE
     public static void clientTransaction() {
         reservationTransaction();
-
         // SAVE THE TRANSACTION TO THE RESERVE TEXT FILE
     }
 
