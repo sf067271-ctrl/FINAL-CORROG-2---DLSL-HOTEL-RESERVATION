@@ -64,7 +64,25 @@ public class Main {
 
     // MAKE SURE TO ADD A ADMIN ACCOUNT IN ORDER TO ACCESS THE STAFF
     public static void receptionist() {
+        String recepUser = "receptionist";
+        String recepPass = "receptionist123";
+        boolean isAuthenticated = false;
         boolean exit = false;
+
+        while (!isAuthenticated){
+            System.out.println("\n=== Receptionist Login ===");
+            System.out.print("Username: ");
+            String username = sc.nextLine();
+            System.out.print("Password: ");
+            String password = sc.nextLine();
+            
+            if (username.equals(recepUser) && password.equals(recepPass)){
+                isAuthenticated = true;
+                System.out.println("Login successful!\n");
+            } else {
+                System.out.println("Invalid username or password.\n");
+            }
+        }
 
         while (!exit) {
             System.out.println("\n====== Welcome Receptionist ======");
