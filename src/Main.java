@@ -20,9 +20,9 @@ public class Main {
     /// CONTINUE
 
     // USE TO CREATE A NEW TEXT FILE
-    static File clientFile = new File("CLIENT");
-    static File reserveFile = new File("RESERVE");
-    static File cancelledFile = new File("CANCELLED");
+    static File clientFile = new File("CLIENT.txt");
+    static File reserveFile = new File("RESERVE.txt");
+    static File cancelledFile = new File("CANCELLED.txt");
     static String clientIdUsed;
     static String clientName;
 
