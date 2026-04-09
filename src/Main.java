@@ -17,6 +17,7 @@ public class Main {
     /// USER
     /// INPUT
     /// VALIDATION
+    /// CONTINUE
 
     // USE TO CREATE A NEW TEXT FILE
     static File clientFile = new File("CLIENT");
