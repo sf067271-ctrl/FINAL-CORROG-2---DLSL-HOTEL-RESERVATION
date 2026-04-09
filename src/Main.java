@@ -91,11 +91,8 @@ public class Main {
             System.out.println("\n====== Welcome Receptionist ======");
             System.out.println("1. View Client Information");
             System.out.println("2. View Reservation Records");
-            System.out.println("3. Sort Reservations by Date");
-            System.out.println("4. Filter Fully Paid Reservations");
-            System.out.println("5. Filter Reservations with Balance");
-            System.out.println("6. Check-in Guest");
-            System.out.println("7. Back");
+            System.out.println("3. Check-in Guest");
+            System.out.println("4. Back");
 
             int userInput = userChoiceValidation("userType");
 
@@ -105,9 +102,37 @@ public class Main {
                     pressToBack();
                     break;
                 case 2:
-                    displayReservations();
-                    pressToBack();
-                    break;
+                    System.out.println("\n=== VIEW RESERVATION RECORDS ===");
+                    System.out.println("1. View All Reservations");
+                    System.out.println("2. Sort Reservations by Date");
+                    System.out.println("3. Filter Fully Paid Reservations");
+                    System.out.println("4. Filter Reservations with Balance");
+                    System.out.println("5. Back");
+
+                    int subChoice = userChoiceValidation("userType");
+
+                        switch (subChoice) {
+                            case 1:
+                                displayReservations();
+                                break;
+
+                            case 2:
+                                sortReservationsByDate();
+                                break;
+
+                            case 3:
+                                filterReservations("FULLY_PAID");
+                                break;
+
+                            case 4:
+                                filterReservations("PARTIAL");
+                                break;
+
+                            default:
+                                System.out.println("Invalid input.");
+                        }
+                        pressToBack();
+                        break;
                 case 3:
                     sortReservationsByDate();
                     pressToBack();
@@ -135,61 +160,6 @@ public class Main {
 
                 default:
                     System.out.println("Invalid input.");
-            }
-        }
-    }
-
-    public static void manager() {
-        String managerUser = "manager";
-        String managerPass = "manager123";
-        boolean isAuthenticated = false;
-        boolean exit = false;
-
-        while (!isAuthenticated) {
-            System.out.println("\n=== Manager Login ===");
-            System.out.print("Username: ");
-            String username = sc.nextLine();
-            System.out.print("Password: ");
-            String password = sc.nextLine();
-
-            if (username.equals(managerUser) && password.equals(managerPass)) {
-                isAuthenticated = true;
-            } else {
-                System.out.println("Invalid credentials.");
-            }
-        }
-
-        while (!exit) {
-            System.out.println("\n====== Welcome Manager ======");
-            System.out.println("1. View Client Information");
-            System.out.println("2. View Reservation Records");
-            System.out.println("3. View Checked-In Guests");
-            System.out.println("4. Cancel Menu");
-            System.out.println("5. Back");
-
-            int choice = userChoiceValidation("userType");
-            switch (choice) {
-                case 1:
-                    displayClientInfos();
-                    pressToBack();
-                    break;
-                case 2:
-                    displayReservations();
-                    pressToBack();
-                    break;
-                case 3:
-                    displayCheckedInGuests();
-                    pressToBack();
-                    break;
-                case 4:
-                    //cancelMenu();
-                    pressToBack();
-                    break;
-                case 5:
-                    exit = true;
-                    userType();
-                    break;
-                default: System.out.println("Invalid input.");
             }
         }
     }
@@ -1128,6 +1098,7 @@ public class Main {
         }
         System.out.println("Guest successfully checked in.");
     }
+
     public static void pressToBack() {
         System.out.println("\n[1] Back");
         int choice = userChoiceValidation("userType");
@@ -1138,33 +1109,7 @@ public class Main {
         }
     }
 
-    public static void displayCheckedInGuests() {
-        System.out.println("\n=== CHECKED-IN GUESTS LIST ===");
 
-        // Check if the file exists before attempting to read
-        File checkedInFile = new File("CHECKED_IN.txt");
-        if (!checkedInFile.exists()) {
-            System.out.println("No guests are currently checked in.");
-            return;
-        }
-
-        System.out.printf("%-15s %-20s %-15s %-10s\n",
-                "ID", "Name", "Date", "Balance");
-        System.out.println("------------------------------------------------------------");
-
-        try (BufferedReader br = new BufferedReader(new FileReader(checkedInFile))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] data = line.split("\\|");
-                if (data.length >= 4) {
-                    System.out.printf("%-15s %-20s %-15s %-10s\n",
-                            data[0], data[1], data[2], data[5]);
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error reading the CHECKED-IN file.");
-        }
-    }
 
     public static void main (String[] args){
         userType();
