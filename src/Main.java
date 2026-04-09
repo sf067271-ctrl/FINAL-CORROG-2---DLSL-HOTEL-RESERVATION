@@ -174,7 +174,7 @@ public class Main {
         // Generate Random Digit from 0-9
         int digitLength = 3;
         for (int i = 0; i < digitLength; i++) {
-            int num = (int) (Math.random() * 10);
+            int num = rand.nextInt(10);
             clientID.append(num);
         }
 
