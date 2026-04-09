@@ -64,9 +64,30 @@ public class Main {
         }
     }
 
-    // MAKE SURE TO ADD A ADMIN ACCOUNT IN ORDER TO ACCESS THE STAFF
+    // MAKE SURE TO ADD A ADMIN ACCOUNT IN ORDER TO ACCESS THE RECEPTIONIST
     public static void receptionist(){
+        String recepUser = "receptionist";
+        String recepPass = "receptionist123";
+        
         boolean exit = false;
+        boolean isAuthenticated = false;
+
+        while (!isAuthenticated){
+            System.out.println("\n=== Receptionist Login ===");
+
+            System.out.print("Username: ");
+            String username = sc.nextLine();
+
+            System.out.print("Password: ");
+            String password = sc.nextLine();
+
+            if (username.equals(recepUser) && password.equals(recepPass)){
+                isAuthenticated = true;
+                System.out.println("Login successful!\n");
+            } else {
+                System.out.println("Invalid username or password.\n");
+            }
+        }
         
         while (!exit){
             System.out.println("\n====== Welcome Receptionist ======");
@@ -539,7 +560,7 @@ public class Main {
         System.out.println(facility);
     }
 
-    public static boolean facilities (int numberOfGuests){
+    public static boolean facilities (int numberOfGuests, String clientID, String clientName, String date){
 
         int totalBalance = 0;
         int totalMaximumOfPax = 0;
@@ -635,7 +656,8 @@ public class Main {
         totalBalance += lunchOrDinner;
 
         // Return if the reservation has been confirmed
-        boolean isReserveConfirmed = confirmationOfReservation(totalBalance, lunchOrDinner, singleRoom, doubleRoom, kingRoom, suiteRoom, exceededGuests);
+        boolean isReserveConfirmed = confirmationOfReservation(totalBalance, lunchOrDinner, singleRoom, doubleRoom, kingRoom, suiteRoom, exceededGuests, clientID,
+        clientName,date);
 
         return isReserveConfirmed;
     }
@@ -850,13 +872,13 @@ public class Main {
             System.out.print("Number of Guests:");
             int numberOfGuests = userChoiceValidation("numberOfGuests");
 
-            boolean isReservationConfirmed =  facilities(numberOfGuests);
+            boolean isReservationConfirmed =  facilities(numberOfGuests, clientID, clientName, date);
 
             if (isReservationConfirmed){
                 // update the client file to reservation confirmed
                 System.out.println("\nYou have successfully confirmed your reservation!\n");
             } else {
-                isReservationConfirmed = facilities(numberOfGuests);
+                isReservationConfirmed = facilities(numberOfGuests, clientID, clientName, date);
             }
         } else {
             System.out.println("Your CLIENT ID was not found. Please try again.");
@@ -888,30 +910,116 @@ public class Main {
         }   
     }
     public static void displayReservations() {
-    System.out.println("\n=== RESERVATION LIST ===");
-
-    System.out.printf("%-12s %-20s %-12s %-10s %-10s %-10s %-15s\n",
+        System.out.println("\n=== RESERVATION LIST ===");
+        System.out.printf("%-12s %-20s %-12s %-10s %-10s %-10s %-15s\n",
             "ID", "Name", "Date", "Total", "Paid", "Balance", "Status");
+        System.out.println("-------------------------------------------------------------------------------------------");
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(reserveFile))) {
+            String line;
 
-    System.out.println("-------------------------------------------------------------------------------------------");
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
 
-    try (BufferedReader br = new BufferedReader(new FileReader(reserveFile))) {
-        String line;
-
-        while ((line = br.readLine()) != null) {
-            String[] data = line.split("\\|");
-
-            if (data.length >= 7) {
-                System.out.printf("%-12s %-20s %-12s %-10s %-10s %-10s %-15s\n",
+                if (data.length >= 7) {
+                    System.out.printf("%-12s %-20s %-12s %-10s %-10s %-10s %-15s\n",
                         data[0], data[1], data[2],
                         data[3], data[4], data[5], data[6]);
+                }
             }
+        } catch (IOException e) {
+            System.out.println("Error reading reservation file.");
         }
-
-    } catch (IOException e) {
-        System.out.println("Error reading reservation file.");
     }
 
+    public static void sortReservationsByDate() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(reserveFile));
+            java.util.ArrayList<String[]> list = new java.util.ArrayList<>();
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                if (data.length >= 7) {
+                    list.add(data);
+                }
+            }
+            br.close();
+
+            list.sort((a, b) -> a[2].compareTo(b[2]));
+
+            System.out.println("\n=== SORTED RESERVATIONS BY DATE ===");
+
+            for (String[] data : list) {
+                System.out.printf("%-12s %-20s %-12s %-10s %-10s %-10s %-15s\n",
+                    data[0], data[1], data[2],
+                    data[3], data[4], data[5], data[6]);
+            }
+        } catch (IOException e) {
+            System.out.println("Error sorting reservations.");
+        }
+    }
+
+    public static void filterReservations(String statusFilter) {
+        System.out.println("\n=== FILTER: " + statusFilter + " ===");
+
+        try (BufferedReader br = new BufferedReader(new FileReader(reserveFile))) {
+            String line;
+            
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+
+                if (data.length >= 7 && data[6].equalsIgnoreCase(statusFilter)) {
+                    System.out.printf("%-12s %-20s %-12s %-10s %-10s %-10s %-15s\n",
+                        data[0], data[1], data[2],
+                        data[3], data[4], data[5], data[6]);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error filtering reservations.");
+        }
+    }
+
+    public static void checkInGuest() {
+        System.out.print("Enter Client ID or Name: ");
+        String input = sc.nextLine();
+
+        java.util.ArrayList<String> updatedLines = new java.util.ArrayList<>();
+
+        boolean found = false;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(reserveFile))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+
+                if (data.length >= 7 &&
+                (data[0].equals(input) || data[1].equalsIgnoreCase(input))) {
+                    data[6] = "Guest Checked-In";
+                    found = true;
+                }
+                updatedLines.add(String.join("|", data));
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading reservations.");
+            return;
+            
+        } if (!found) {
+            System.out.println("Reservation not found.");
+            return;
+        }
+        
+        try (FileWriter fw = new FileWriter(reserveFile, false)) {
+            for (String l : updatedLines) {
+                fw.write(l + "\n");
+            }
+        } catch (IOException e) {
+            System.out.println("Error updating check-in status.");
+        }
+        System.out.println("Guest successfully checked in.");
+    }
+    
     public static void main(String[] args) {
         userType();
 
