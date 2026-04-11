@@ -234,7 +234,7 @@ public class Main {
                         System.out.println("\n=== CANCELLATION MENU ===");
                         System.out.println("[1] Cancel a Reservation");
                         System.out.println("[2] View Cancelled Records");
-                        System.out.println("[3] Back to Main Manager Menu");
+                        System.out.println("[3] Back");
 
                         int subChoice = userChoiceValidation("userType");
 
