@@ -54,7 +54,7 @@ public class Main {
                 receptionist();
                 isValid = true;
             } else if (userInput == 3) {
-                // Call MANAGER FUNCTION
+                manager();
                 isValid = true;
             } else if (userInput == 0) {
                 return;
