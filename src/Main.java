@@ -134,26 +134,11 @@ public class Main {
                         pressToBack();
                         break;
                 case 3:
-                    sortReservationsByDate();
-                    pressToBack();
-                    break;
-
-                case 4:
-                    filterReservations("FULLY PAID");
-                    pressToBack();
-                    break;
-
-                case 5:
-                    filterReservations("PARTIAL");
-                    pressToBack();
-                    break;
-
-                case 6:
                     checkInGuest();
                     pressToBack();
                     break;
 
-                case 7:
+                case 4:
                     exit = true;
                     userType();
                     break;
