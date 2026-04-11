@@ -114,22 +114,18 @@ public class Main {
                         switch (subChoice) {
                             case 1:
                                 displayReservations();
-                                pressToBack();
                                 break;
 
                             case 2:
                                 sortReservationsByDate();
-                                pressToBack();
                                 break;
 
                             case 3:
                                 filterReservations("FULLY_PAID");
-                                pressToBack();
                                 break;
 
                             case 4:
                                 filterReservations("PARTIAL");
-                                pressToBack();
                                 break;
 
                             default:
