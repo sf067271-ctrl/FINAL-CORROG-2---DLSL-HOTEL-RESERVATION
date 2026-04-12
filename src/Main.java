@@ -103,14 +103,14 @@ public class Main {
                     break;
                 case 2:
                     while (!backToReceptionist) {
-                    System.out.println("\n=== VIEW RESERVATION RECORDS ===");
-                    System.out.println("[1] View All Reservations");
-                    System.out.println("[2] Sort Reservations by Date");
-                    System.out.println("[3] Filter Fully Paid Reservations");
-                    System.out.println("[4] Filter Reservations with Balance");
-                    System.out.println("[5] Back");
+                        System.out.println("\n=== VIEW RESERVATION RECORDS ===");
+                        System.out.println("[1] View All Reservations");
+                        System.out.println("[2] Sort Reservations by Date");
+                        System.out.println("[3] Filter Fully Paid Reservations");
+                        System.out.println("[4] Filter Reservations with Balance");
+                        System.out.println("[5] Back");
 
-                    int subChoice = userChoiceValidation("userType");
+                        int subChoice = userChoiceValidation("userType");
 
                         switch (subChoice) {
                             case 1:
@@ -135,9 +135,9 @@ public class Main {
 
                             default:
                                 System.out.println("Invalid input.");
-                            }
                         }
-                        break;
+                    }
+                    break;
                 case 3:
                     checkInGuest();
                     pressToBack();
