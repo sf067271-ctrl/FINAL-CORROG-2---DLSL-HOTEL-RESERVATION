@@ -55,7 +55,7 @@ public class Main {
                 receptionist();
                 isValid = true;
             } else if (userInput == 3) {
-                // Call MANAGER FUNCTION
+                manager();
                 isValid = true;
             } else if (userInput == 0) {
                 return;
@@ -96,7 +96,7 @@ public class Main {
             System.out.println("4. Back");
 
             int userInput = userChoiceValidation("userType");
-
+            boolean backToReceptionist = false;
             switch (userInput) {
                 case 1:
                     displayClientInfos();
@@ -154,13 +154,123 @@ public class Main {
                     pressToBack();
                     break;
 
-                case 7:
+                case 4:
                     exit = true;
                     userType();
                     break;
 
                 default:
                     System.out.println("Invalid input.");
+            }
+        }
+    }
+
+    public static void manager() {
+        String managerUser = "manager";
+        String managerPass = "manager123";
+        boolean isAuthenticated = false;
+        boolean exit = false;
+
+        while (!isAuthenticated) {
+            System.out.println("\n=== Manager Login ===");
+            System.out.print("Username: ");
+            String username = sc.nextLine();
+            System.out.print("Password: ");
+            String password = sc.nextLine();
+
+            if (username.equals(managerUser) && password.equals(managerPass)) {
+                isAuthenticated = true;
+            } else {
+                System.out.println("Invalid credentials.");
+            }
+        }
+
+        while (!exit) {
+            System.out.println("\n====== Welcome Manager ======");
+            System.out.println("[1] View Client Information");
+            System.out.println("[2] View Reservation Records");
+            System.out.println("[3] View Checked-In Guests");
+            System.out.println("[4] Cancel Menu");
+            System.out.println("[5] Back");
+
+            int choice = userChoiceValidation("userType");
+            boolean backToManager = false;
+            switch (choice) {
+                case 1:
+                    displayClientInfos();
+                    pressToBack();
+                    break;
+                case 2:
+                    while (!backToManager) {
+                        System.out.println("\n=== VIEW RESERVATION RECORDS ===");
+                        System.out.println("[1] View All Reservations");
+                        System.out.println("[2] Sort Reservations by Date");
+                        System.out.println("[3] Filter Fully Paid Reservations");
+                        System.out.println("[4] Filter Reservations with Balance");
+                        System.out.println("[5] Back");
+
+                        int subChoice = userChoiceValidation("userType");
+
+                        switch (subChoice) {
+                            case 1:
+                                displayReservations();
+                                break;
+
+                            case 2:
+                                sortReservationsByDate();
+                                break;
+
+                            case 3:
+                                filterReservations("FULLY_PAID");
+                                break;
+
+                            case 4:
+                                filterReservations("PARTIAL");
+                                break;
+
+                            case 5:
+                                backToManager = true;
+                                break;
+                            default:
+                                System.out.println("Invalid input.");
+                        }
+                    }
+                    break;
+                case 3:
+                    displayCheckedInGuests();
+                    pressToBack();
+                    break;
+                case 4:
+                    while (!backToManager) {
+                        System.out.println("\n=== CANCELLATION MENU ===");
+                        System.out.println("[1] Cancel a Reservation");
+                        System.out.println("[2] View Cancelled Records");
+                        System.out.println("[3] Back");
+
+                        int subChoice = userChoiceValidation("userType");
+
+                        switch (subChoice) {
+                            case 1:
+                                cancel();
+                                pressToBack();
+                                break;
+                            case 2:
+                                cancelledList();
+                                pressToBack();
+                                break;
+                            case 3:
+                                backToManager = true;
+                                break;
+                            default:
+                                System.out.println("Invalid input.");
+                        }
+                    }
+                    break;
+                case 5:
+                    exit = true;
+                    userType();
+                    break;
+                default: System.out.println("Invalid input.");
             }
         }
     }
