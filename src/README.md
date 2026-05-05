@@ -1,6 +1,7 @@
 DLSL Hotel Reservation System
 
 DESCRIPTION
+
 The DLSL Hotel Reservation System is a console-based application developed in Java that 
 allows users to manage hotel reservations efficiently. The system supports multiple user 
 roles, including clients, receptionists, and managers, each with specific functionalities. 
