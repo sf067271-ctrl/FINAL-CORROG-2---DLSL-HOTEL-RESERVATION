@@ -48,7 +48,7 @@ TECHNOLOGIES USED
 - File Handling (File, BufferedReader, FileWriter)
 - ArrayList
 - Regular Expressions (Regex)
-= Date Handling (LocalDate)
+- Date Handling (LocalDate)
 
 FILES USED
 - CLIENT.txt – stores client information
