@@ -51,11 +51,11 @@ TECHNOLOGIES USED
 = Date Handling (LocalDate)
 
 FILES USED
-CLIENT.txt – stores client information
-RESERVE.txt – stores reservation records
-CHECKED_IN.txt – stores checked-in guests
-CHECKED_OUT.txt – stores checked-out guests
-CANCELLED.txt – stores cancelled reservations
+- CLIENT.txt – stores client information
+- RESERVE.txt – stores reservation records
+- CHECKED_IN.txt – stores checked-in guests
+- CHECKED_OUT.txt – stores checked-out guests
+- CANCELLED.txt – stores cancelled reservations
 
 DEFAULT CREDENTIALS
 
