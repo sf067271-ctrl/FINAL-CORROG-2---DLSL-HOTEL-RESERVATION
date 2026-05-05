@@ -58,6 +58,7 @@ CHECKED_OUT.txt – stores checked-out guests
 CANCELLED.txt – stores cancelled reservations
 
 DEFAULT CREDENTIALS
+
 Receptionist
 - Username: receptionist
 - Password: receptionist123
