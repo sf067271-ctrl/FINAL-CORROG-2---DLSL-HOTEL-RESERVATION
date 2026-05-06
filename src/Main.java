@@ -320,7 +320,7 @@ public class Main {
     private static void client() {
         System.out.println("====== Welcome Client ======");
 
-        System.out.println("[1] Register");
+        System.out.println("[1] Reservation");
         System.out.println("[2] Back");
 
         int userInput = userChoiceValidation("client");
@@ -361,8 +361,8 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
 
-                if (data.length >= 8 && (data[0].equals(input) || data[1].equals(input) || data[2].equalsIgnoreCase(input)
-                )) {
+                if (data.length >= 8 &&
+                        (data[0].equals(input) || data[1].equals(input) || data[2].equalsIgnoreCase(input))) {
                     removedLine = line;
                     found = true;
                     continue;
@@ -385,11 +385,15 @@ public class Main {
 
         String[] parts = removedLine.split("\\|");
 
-        if (parts.length >= 4) {
+        if (parts.length >= 8) {
+
             String clientID = parts[0];
             String clientTN = parts[1];
             String name = parts[2];
-            String checkInDate = parts[3];
+            String totalBalance = parts[3];
+            String paid = parts[4];
+            String remainingBalance = parts[5];
+            String checkInDate = parts[6];
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
             String checkOutDate = LocalDate.now().format(formatter);
@@ -400,7 +404,14 @@ public class Main {
 
                     if (checkedOutFile.length() > 0) fw.write("\n");
 
-                    fw.write(clientID + "|" + clientTN + "|" + name + "|" + checkInDate + "|" + checkOutDate);
+                    fw.write(clientID + "|" +
+                            clientTN + "|" +
+                            name + "|" +
+                            totalBalance + "|" +
+                            paid + "|" +
+                            remainingBalance + "|" +
+                            checkInDate + "|" +
+                            checkOutDate);
 
                 } catch (IOException e) {
                     System.out.println("Error writing to checked-out file.");
@@ -452,7 +463,7 @@ public class Main {
         String regexName    = "^[A-Za-z\\s-.']+$";
         String regexAddress = "^[A-Za-z0-9.,#/\\\\\\s-]+$";
         String regexContact = "^(?:\\+63|63|0)?[\\s-]?9\\d{2}[\\s-]?\\d{3}[\\s-]?\\d{4}$";
-        String regexEmail   = "^[A-Za-z0-9_-]+@[A-Za-z0-9].[A-Za-z]+$";
+        String regexEmail   = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
         do {
             System.out.print(
@@ -525,16 +536,16 @@ public class Main {
                 } else if (!valiType.equals("numberOfGuests") && !valiType.equals("facilityQuantity") && !valiType.equals("facilityChoice")) {
                     System.out.print("Enter your choice: ");
                 }
-                    userInput = sc.nextLine();
-                    clientNum = Integer.parseInt(userInput);
+                userInput = sc.nextLine();
+                clientNum = Integer.parseInt(userInput);
 
-                    // used to check if the number of guest is lower than 0
-                    if (clientNum > 0){
-                        isValid = true;
-                    } else {
-                        System.out.println("Invalid Number!");
-                        gotReject = true;
-                    }
+                // used to check if the number of guest is lower than 0
+                if (clientNum > 0 && clientNum < 10) {
+                    isValid = true;
+                } else {
+                    System.out.println("Invalid Number!");
+                    gotReject = true;
+                }
 
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input");
@@ -651,17 +662,8 @@ public class Main {
                     if (file == clientFile) {
                         clientName = arr[1];
                     } else if (file == checkedInFile){
-                        clientName = arr[1];
-                        reservationDate = arr[2];
-                    }
-                    break;
-                } else if (arr[1].equals(clientID)){
-                    isClientIdExists = true;
-                    if (file == clientFile) {
-                        clientName = arr[1];
-                    } else if (file == checkedInFile){
-                        clientName = arr[1];
-                        reservationDate = arr[2];
+                        clientName = arr[2];
+                        reservationDate = arr[3];
                     }
                     break;
                 }
@@ -692,6 +694,7 @@ public class Main {
         header.add("ID");
         header.add("Name");
         header.add("Transaction Number");
+        header.add("Guests");
         header.add("Single");
         header.add("Double");
         header.add("King");
@@ -708,24 +711,25 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
 
-                if (data.length >= 12) {
+                if (data.length >= 13) {
                     String id = data[0].trim();
                     String name = data[1].trim();
                     String clientTN = data[2].trim();
-                    String single = data[3].trim();
-                    String doubles = data[4].trim();
-                    String king = data[5].trim();
-                    String suite = data[6].trim();
-                    String lunch = data[7].trim();
-                    String dinner = data[8].trim();
-                    String both = data[9].trim();
-                    String excess = data[10].trim();
+                    String guests = data[3].trim();
+                    String single = data[4].trim();
+                    String doubles = data[5].trim();
+                    String king = data[6].trim();
+                    String suite = data[7].trim();
+                    String lunch = data[8].trim();
+                    String dinner = data[9].trim();
+                    String both = data[10].trim();
+                    String excess = data[11].trim();
 
-                    double totalNum = Double.parseDouble(data[11].trim());
+                    double totalNum = Double.parseDouble(data[12].trim());
                     String total = String.format("₱ %,.2f", totalNum);
 
                     // Store each row in the array
-                    rows.add(new String[]{id, name, clientTN, single, doubles, king, suite, lunch, dinner, both, excess,total});
+                    rows.add(new String[]{id, name, clientTN, guests,single, doubles, king, suite, lunch, dinner, both, excess,total});
                 }
             }
 
@@ -794,10 +798,11 @@ public class Main {
 
         header.add("ID");
         header.add("Name");
-        header.add("Balance");
+        header.add("Transaction Number");
+        header.add("Total Balance");
         header.add("Paid");
         header.add("Remaining Balance");
-        header.add("Date");
+        header.add("Date In");
 
         try (BufferedReader br = getBufferedReader(checkedInFile)) {
             String line;
@@ -805,21 +810,22 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
 
-                if (data.length >= 6) {
+                if (data.length >= 7) {
                     String id = data[0].trim();
                     String name = data[1].trim();
-                    String date = data[2].trim();
-                    double numBalance = Double.parseDouble(data[3].trim());
+                    String clientTN = data[2].trim();
+                    String date = data[3].trim();
+                    double numBalance = Double.parseDouble(data[4].trim());
                     String balance = String.format("₱ %,.2f", numBalance);
 
-                    double numPaid = Double.parseDouble(data[4].trim());
+                    double numPaid = Double.parseDouble(data[5].trim());
                     String paid = String.format("₱ %,.2f", numPaid);
 
-                    double numRemainingBalance = Double.parseDouble(data[5].trim());
+                    double numRemainingBalance = Double.parseDouble(data[6].trim());
                     String remainBalance = String.format("₱ %,.2f", numRemainingBalance);
 
                     // Store each row in the arrayList
-                    rows.add(new String[]{id, name, balance, paid, remainBalance, date});
+                    rows.add(new String[]{id, name, clientTN, balance, paid, remainBalance, date});
                 }
             }
         } catch (IOException e) {
@@ -841,7 +847,11 @@ public class Main {
 
         ArrayList<String> headers = new ArrayList<>();
         headers.add("ID");
+        headers.add("Transaction Number");
         headers.add("Name");
+        headers.add("Total Balance");
+        headers.add("Paid");
+        headers.add("Balance");
         headers.add("Date In");
         headers.add("Date Out");
 
@@ -851,14 +861,18 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
 
-                if (data.length >= 4) {
+                if (data.length >= 8) {
                     String id = data[0].trim();
-                    String name = data[1].trim();
-                    String dateIn = data[2].trim();
-                    String dateOut = data[3].trim();
+                    String clientTN = data[1].trim();
+                    String name = data[2].trim();
+                    String totalBalance = data[3].trim();
+                    String paid = data[4].trim();
+                    String balance = data[5].trim();
+                    String dateIn = data[6].trim();
+                    String dateOut = data[7].trim();
 
                     // Store each row in the array
-                    rows.add(new String[]{id, name, dateIn, dateOut});
+                    rows.add(new String[]{id, clientTN,name, totalBalance, paid, balance,dateIn, dateOut});
                 }
             }
         } catch (IOException e) {
@@ -1136,7 +1150,7 @@ public class Main {
 
 
         // This shows the Facilities options to the client
-       facilitiesOptions(numberOfGuests);
+        facilitiesOptions(numberOfGuests);
 
         // Prompt the client if they want to see the descriptions of each Facility
         System.out.println("\nDo you want to view the descriptions of each Facilities? (Y/N)");
@@ -1218,6 +1232,7 @@ public class Main {
         if (confirmed) {
             saveClientAvail(
                     clientId,
+                    numberOfGuests,
                     singleRoom,
                     doubleRoom,
                     kingRoom,
@@ -1230,10 +1245,12 @@ public class Main {
         return confirmed;
     }
 
-    private static void saveClientAvail(String clientIdUsed, int singleRoom, int doubleRoom, int kingRoom, int suiteRoom, int excess, double totalBalance){
+    private static void saveClientAvail(String clientIdUsed, int numOfGuests,int singleRoom, int doubleRoom, int kingRoom, int suiteRoom, int excess, double totalBalance){
         try (FileWriter fw = new FileWriter(clientAvail, true)) {
             fw.write(clientIdUsed + "|" +
-                    clientName + "|" + clientTN + "|" +
+                    clientName + "|" +
+                    clientTN + "|" +
+                    numOfGuests + "|" +
                     singleRoom + "|" +
                     doubleRoom + "|" +
                     kingRoom + "|" +
@@ -1521,10 +1538,9 @@ public class Main {
             // Check statuses
             boolean isClientExists = clientIDChecker(userInput, clientFile);
             boolean isClientCheckedIn = clientIDChecker(userInput, checkedInFile);
-            boolean isClientCancelled = clientIDChecker(userInput, cancelledFile);
             boolean isClientReserved = clientIDChecker(userInput, reserveFile);
 
-            if (isClientExists && !isClientReserved && !isClientCancelled && !isClientCheckedIn) {
+            if (isClientExists && !isClientReserved && !isClientCheckedIn) {
 
                 clientIdUsed = userInput;
 
@@ -1560,17 +1576,6 @@ public class Main {
 
             } else if (isClientExists && isClientCheckedIn) {
                 System.out.println("You already have checked in your reservation.");
-
-            } else if (isClientExists && isClientCancelled) {
-                System.out.println("You have cancelled your reservation. " +
-                        "\nWould you like to make another reservation?");
-
-                boolean makeReservation = yesOrNolValidation();
-
-                if (makeReservation) {
-                    userType();
-                    return;
-                }
 
             }else {
                 System.out.println("Your CLIENT ID was not found. Please try again.");
@@ -1717,26 +1722,24 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
 
-                if (data.length >= 8 &&
-                        (data[0].equals(input) || data[1].equals(input))) {
+                if (data.length >= 8 && (data[0].equals(input) || data[1].equals(input))) {
 
                     found = true;
 
-                    // This makes sure that there is no double check-in
                     if (data[7].equalsIgnoreCase("Guest Checked-In")) {
                         System.out.println("Guest is already checked in.");
                         updatedLines.add(line);
                         continue;
                     }
 
-                    // Validate if the check in on the reservation date is today
+                    // Validate reservation date = today
                     LocalDate today = LocalDate.now();
                     LocalDate reservationDate;
 
                     try {
-                        reservationDate = LocalDate.parse(data[2], formatter);
+                        reservationDate = LocalDate.parse(data[3], formatter);
                     } catch (Exception e) {
-                        System.out.println("Invalid date format in record: " + data[2]);
+                        System.out.println("Invalid date format in record: " + data[3]);
                         updatedLines.add(line);
                         continue;
                     }
@@ -1747,7 +1750,7 @@ public class Main {
                         continue;
                     }
 
-                    // Payment if there is remaining balance in Client Reservation
+                    // Payment handling
                     double paid = Double.parseDouble(data[5]);
                     double balance = Double.parseDouble(data[6]);
 
@@ -1771,13 +1774,32 @@ public class Main {
                         System.out.println("Fully paid. Proceeding to check-in...");
                     }
 
-                    // Updates the status
-                    data[7] = "Guest Checked-In";
+
+                    String clientID = data[0];
+                    String clientTN = data[1];
+                    String name = data[2];
+                    String totalBalance = data[4];
+                    String paidStr = data[5];
+                    String balanceStr = data[6];
+                    String checkInDate = LocalDate.now().format(formatter);
+
+                    String record = clientID + "|" +
+                            clientTN + "|" +
+                            name + "|" +
+                            totalBalance + "|" +
+                            paidStr + "|" +
+                            balanceStr + "|" +
+                            checkInDate + "|" +
+                            "Guest Checked-In";
 
                     try (FileWriter fw = new FileWriter(checkedInFile, true)) {
                         if (checkedInFile.length() > 0) fw.write("\n");
-                        fw.write(String.join("|", data));
+                        fw.write(record);
                     }
+
+                    // Update reservation status
+                    data[7] = "Guest Checked-In";
+                    updatedLines.add(String.join("|", data));
 
                     checkedInSuccess = true;
                     continue;
