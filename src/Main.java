@@ -44,6 +44,7 @@ public class Main {
     static int totalLunch = 0;
     static int totalDinner = 0;
     static int totalBoth = 0;
+    static String paymentStatus;
 
     static Scanner sc = new Scanner(System.in);
 
@@ -418,6 +419,8 @@ public class Main {
                 }
 
                 System.out.println("\nYou have successfully checked-out. Thank you for choosing DLSL Hotel.");
+                updateClientAvailStatus(input, "CHECKED_OUT");
+                updateReserveStatus(input, "CHECKED_OUT");
 
             } else {
                 System.out.println("Error updating checked-in records.");
@@ -426,6 +429,39 @@ public class Main {
         } else {
             System.out.println("Corrupted data format.");
         }
+    }
+
+    private static void updateReserveStatus(String identifier, String newStatus) {
+
+        File tempFile = new File("TEMP_RESERVE.txt");
+
+        try (
+                BufferedReader br = new BufferedReader(new FileReader(reserveFile));
+                BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile))
+        ) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+
+                if (data.length >= 8 &&
+                        (data[0].equals(identifier) || data[1].equals(identifier))) {
+
+                    data[7] = newStatus; // status column
+                    line = String.join("|", data);
+                }
+
+                bw.write(line);
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error updating RESERVE status.");
+            return;
+        }
+
+        reserveFile.delete();
+        tempFile.renameTo(reserveFile);
     }
 
     // Client ID Generator
@@ -704,6 +740,8 @@ public class Main {
         header.add("Both");
         header.add("Excess");
         header.add("Total");
+        header.add("Payment Status");
+        header.add("Status");
 
         try (BufferedReader br = getBufferedReader(clientAvail)) {
             String line;
@@ -711,7 +749,7 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
 
-                if (data.length >= 13) {
+                if (data.length >= 15) {
                     String id = data[0].trim();
                     String name = data[1].trim();
                     String clientTN = data[2].trim();
@@ -728,8 +766,11 @@ public class Main {
                     double totalNum = Double.parseDouble(data[12].trim());
                     String total = String.format("₱ %,.2f", totalNum);
 
+                    String paymentStatus = data[13].trim();
+                    String status = data[14].trim();
+
                     // Store each row in the array
-                    rows.add(new String[]{id, name, clientTN, guests,single, doubles, king, suite, lunch, dinner, both, excess,total});
+                    rows.add(new String[]{id, name, clientTN, guests,single, doubles, king, suite, lunch, dinner, both, excess,total, status});
                 }
             }
 
@@ -797,12 +838,13 @@ public class Main {
         ArrayList<String> header = new ArrayList<>();
 
         header.add("ID");
-        header.add("Name");
         header.add("Transaction Number");
+        header.add("Name");
+        header.add("Date In");
         header.add("Total Balance");
         header.add("Paid");
         header.add("Remaining Balance");
-        header.add("Date In");
+
 
         try (BufferedReader br = getBufferedReader(checkedInFile)) {
             String line;
@@ -812,8 +854,8 @@ public class Main {
 
                 if (data.length >= 7) {
                     String id = data[0].trim();
-                    String name = data[1].trim();
-                    String clientTN = data[2].trim();
+                    String clientTN = data[1].trim();
+                    String name = data[2].trim();
                     String date = data[3].trim();
                     double numBalance = Double.parseDouble(data[4].trim());
                     String balance = String.format("₱ %,.2f", numBalance);
@@ -825,7 +867,7 @@ public class Main {
                     String remainBalance = String.format("₱ %,.2f", numRemainingBalance);
 
                     // Store each row in the arrayList
-                    rows.add(new String[]{id, name, clientTN, balance, paid, remainBalance, date});
+                    rows.add(new String[]{id, clientTN, name, date, balance, paid, remainBalance});
                 }
             }
         } catch (IOException e) {
@@ -839,7 +881,7 @@ public class Main {
         System.out.println("\n=== CHECKED-OUT GUESTS LIST ===");
 
         if (!checkedOutFile.exists()) {
-            System.out.println("No guests are currently checked in.");
+            System.out.println("No checked-out guests found.");
             return;
         }
 
@@ -847,36 +889,55 @@ public class Main {
 
         ArrayList<String> headers = new ArrayList<>();
         headers.add("ID");
-        headers.add("Transaction Number");
+        headers.add("Transaction No.");
         headers.add("Name");
         headers.add("Total Balance");
         headers.add("Paid");
-        headers.add("Balance");
+        headers.add("Remaining Balance");
         headers.add("Date In");
         headers.add("Date Out");
 
         try (BufferedReader br = getBufferedReader(checkedOutFile)) {
+
             String line;
 
             while ((line = br.readLine()) != null) {
+
                 String[] data = line.split("\\|");
 
                 if (data.length >= 8) {
+
                     String id = data[0].trim();
-                    String clientTN = data[1].trim();
+                    String transaction = data[1].trim();
                     String name = data[2].trim();
-                    String totalBalance = data[3].trim();
-                    String paid = data[4].trim();
-                    String balance = data[5].trim();
+
+                    String total = String.format("₱ %,.2f",
+                            Double.parseDouble(data[3].trim()));
+
+                    String paid = String.format("₱ %,.2f",
+                            Double.parseDouble(data[4].trim()));
+
+                    String balance = String.format("₱ %,.2f",
+                            Double.parseDouble(data[5].trim()));
+
                     String dateIn = data[6].trim();
                     String dateOut = data[7].trim();
 
-                    // Store each row in the array
-                    rows.add(new String[]{id, clientTN,name, totalBalance, paid, balance,dateIn, dateOut});
+                    rows.add(new String[]{
+                            id,
+                            transaction,
+                            name,
+                            total,
+                            paid,
+                            balance,
+                            dateIn,
+                            dateOut
+                    });
                 }
             }
+
         } catch (IOException e) {
-            System.out.println("Error reading checked-in file.");
+            System.out.println("Error reading checked-out file.");
             return;
         }
 
@@ -896,6 +957,7 @@ public class Main {
         ArrayList<String> headers = new ArrayList<>();
 
         headers.add("ID");
+        headers.add("Transaction No.");
         headers.add("Name");
         headers.add("Date");
         headers.add("Total Balance");
@@ -911,14 +973,15 @@ public class Main {
 
                 if (data.length >= 7) {
                     String id =  data[0].trim();
-                    String name = data[1].trim();
-                    String date = data[2].trim();
-                    String total = String.format("₱%,.2f", Double.parseDouble(data[3].trim()));
-                    String paid = String.format("₱%,.2f", Double.parseDouble(data[4].trim()));
-                    String balance = String.format("₱%,.2f", Double.parseDouble(data[5].trim()));
-                    String status = data[6].trim();
+                    String transactionID = data[1].trim();
+                    String name = data[2].trim();
+                    String date = data[3].trim();
+                    String total = String.format("₱%,.2f", Double.parseDouble(data[4].trim()));
+                    String paid = String.format("₱%,.2f", Double.parseDouble(data[5].trim()));
+                    String balance = String.format("₱%,.2f", Double.parseDouble(data[6].trim()));
+                    String status = data[7].trim();
 
-                    rows.add(new String[]{id, name, date, total, paid, balance, status});
+                    rows.add(new String[]{id, transactionID, name, date, total, paid, balance, status});
                 }
             }
 
@@ -1147,8 +1210,6 @@ public class Main {
         int kingRoom = 0;
         int suiteRoom = 0;
 
-
-
         // This shows the Facilities options to the client
         facilitiesOptions(numberOfGuests);
 
@@ -1238,14 +1299,23 @@ public class Main {
                     kingRoom,
                     suiteRoom,
                     excess,
-                    totalBalance
+                    totalBalance,
+                    paymentStatus
             );
         }
 
         return confirmed;
     }
 
-    private static void saveClientAvail(String clientIdUsed, int numOfGuests,int singleRoom, int doubleRoom, int kingRoom, int suiteRoom, int excess, double totalBalance){
+    private static void saveClientAvail(String clientIdUsed,
+                                        int numOfGuests,
+                                        int singleRoom,
+                                        int doubleRoom,
+                                        int kingRoom,
+                                        int suiteRoom, 
+                                        int excess, 
+                                        double totalBalance,
+                                        String paymentStatus){
         try (FileWriter fw = new FileWriter(clientAvail, true)) {
             fw.write(clientIdUsed + "|" +
                     clientName + "|" +
@@ -1259,13 +1329,45 @@ public class Main {
                     totalDinner + "|" +
                     totalBoth + "|" +
                     excess + "|" +
-                    totalBalance);
+                    totalBalance + "|" +
+                    paymentStatus + "|" +
+                    "NOT_CHECKED_IN");
 
             fw.write("\n");
 
         } catch (IOException e) {
             System.out.println("Error saving CLIENT_AVAIL data.");
         }
+    }
+
+    private static void updateClientAvailStatus(String identifier, String newStatus) {
+
+        File tempFile = new File("TEMP_CLIENT_AVAIL.txt");
+
+        try (BufferedReader br = new BufferedReader(new FileReader(clientAvail)); BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+
+                if (data.length >= 14 &&
+                        (data[0].equals(identifier) || data[2].equals(identifier))) {
+
+                    data[14] = newStatus; // status column
+                    line = String.join("|", data);
+                }
+
+                bw.write(line);
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error updating CLIENT_AVAIL status.");
+            return;
+        }
+
+        clientAvail.delete();
+        tempFile.renameTo(clientAvail);
     }
 
     private static void printGuestLeftFood (int guestsRemain){
@@ -1469,12 +1571,12 @@ public class Main {
             else paidAmount = totalBalance;
 
             double balance = totalBalance - paidAmount;
-            String status = (balance == 0) ? "FULLY_PAID" : "PARTIAL";
+            paymentStatus = (balance == 0) ? "FULLY_PAID" : "PARTIAL";
 
             // Generate the transaction number for the client
             clientTN = transactionNumber();
 
-            clientReserveFileUpdater(totalBalance, paidAmount, balance, status, date, clientTN);
+            clientReserveFileUpdater(totalBalance, paidAmount, balance, paymentStatus, date, clientTN);
             printTransactionMessage(clientTN);
         }
         return isConfirmed;
@@ -1630,12 +1732,12 @@ public class Main {
                 if (data.length >= 7) {
                     rows.add(new String[]{
                             data[0].trim(),
-                            data[1].trim(),
                             data[2].trim(),
                             data[3].trim(),
                             data[4].trim(),
                             data[5].trim(),
-                            data[6].trim()
+                            data[6].trim(),
+                            data[7].trim()
                     });
                 }
             }
@@ -1645,11 +1747,11 @@ public class Main {
             return;
         }
 
-        rows.sort((a, b) -> {
-            LocalDate d1 = parseDate(a[2]);
-            LocalDate d2 = parseDate(b[2]);
-            return d1.compareTo(d2);
-        });
+//        rows.sort((a, b) -> {
+//            LocalDate d1 = parseDate(a[3]);
+//            LocalDate d2 = parseDate(b[]);//mag run lang aq
+//            return d1.compareTo(d2);
+//        });
 
         System.out.println("\n=== SORTED RESERVATIONS BY DATE ===");
 
@@ -1677,7 +1779,7 @@ public class Main {
 
                     String id = data[0].trim();
                     String name = data[1].trim();
-                    double balance = Double.parseDouble(data[5].trim());
+                    double balance = Double.parseDouble(data[6].trim());
 
                     boolean match = false;
 
@@ -1705,54 +1807,73 @@ public class Main {
     }
 
     private static void checkInGuest() {
+
         System.out.println();
         System.out.print("====== Guest Check-In ======\n");
         System.out.print("Enter Client ID or Transaction Number: ");
-        String input = sc.nextLine();
+        String input = sc.nextLine().trim();
 
-        boolean checkedInSuccess = false;
-        ArrayList<String> updatedLines = new ArrayList<>();
+        File tempFile = new File("TEMP_RESERVE.txt");
         boolean found = false;
+        boolean checkedInSuccess = false;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
-        try (BufferedReader br = getBufferedReader(reserveFile)) {
+        try (
+                BufferedReader br = getBufferedReader(reserveFile);
+                BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile))
+        ) {
             String line;
 
             while ((line = br.readLine()) != null) {
+
                 String[] data = line.split("\\|");
 
-                if (data.length >= 8 && (data[0].equals(input) || data[1].equals(input))) {
+                // SAFETY CHECK
+                if (data.length < 8) {
+                    bw.write(line);
+                    bw.newLine();
+                    continue;
+                }
+
+                if (data[0].equals(input) || data[1].equals(input)) {
 
                     found = true;
 
-                    if (data[7].equalsIgnoreCase("Guest Checked-In")) {
-                        System.out.println("Guest is already checked in.");
-                        updatedLines.add(line);
-                        continue;
-                    }
 
-                    // Validate reservation date = today
                     LocalDate today = LocalDate.now();
                     LocalDate reservationDate;
 
                     try {
                         reservationDate = LocalDate.parse(data[3], formatter);
                     } catch (Exception e) {
-                        System.out.println("Invalid date format in record: " + data[3]);
-                        updatedLines.add(line);
+                        System.out.println("Invalid date format in record.");
+                        bw.write(line);
+                        bw.newLine();
                         continue;
                     }
+
 
                     if (!reservationDate.equals(today)) {
                         System.out.println("Check-in not allowed. Reservation is not for today.");
-                        updatedLines.add(line);
+                        bw.write(line);
+                        bw.newLine();
                         continue;
                     }
 
-                    // Payment handling
-                    double paid = Double.parseDouble(data[5]);
-                    double balance = Double.parseDouble(data[6]);
+
+                    double paid;
+                    double balance;
+
+                    try {
+                        paid = Double.parseDouble(data[5]);
+                        balance = Double.parseDouble(data[6]);
+                    } catch (Exception e) {
+                        System.out.println("Corrupted payment data.");
+                        bw.write(line);
+                        bw.newLine();
+                        continue;
+                    }
 
                     if (balance > 0) {
                         System.out.printf("Remaining balance: ₱ %,.2f\n", balance);
@@ -1762,12 +1883,13 @@ public class Main {
 
                         if (willPay) {
                             paid += balance;
-                            data[5] = String.valueOf(paid);
-                            data[6] = "0.00";
+                            balance = 0;
                             System.out.println("Payment completed.");
+                            updateClientAvailPaymentStatus(input, "FULLY_PAID");
                         } else {
                             System.out.println("Check-in cancelled. Full payment required.");
-                            updatedLines.add(line);
+                            bw.write(line);
+                            bw.newLine();
                             continue;
                         }
                     } else {
@@ -1775,60 +1897,91 @@ public class Main {
                     }
 
 
-                    String clientID = data[0];
-                    String clientTN = data[1];
-                    String name = data[2];
-                    String totalBalance = data[4];
-                    String paidStr = data[5];
-                    String balanceStr = data[6];
-                    String checkInDate = LocalDate.now().format(formatter);
+                    data[7] = "Guest Checked-In";
 
-                    String record = clientID + "|" +
-                            clientTN + "|" +
-                            name + "|" +
-                            totalBalance + "|" +
-                            paidStr + "|" +
-                            balanceStr + "|" +
-                            checkInDate + "|" +
-                            "Guest Checked-In";
+                    // Update payment values in record
+                    data[5] = String.valueOf(paid);
+                    data[6] = String.valueOf(balance);
 
+                    // Write updated record to CHECKED_IN file
                     try (FileWriter fw = new FileWriter(checkedInFile, true)) {
-                        if (checkedInFile.length() > 0) fw.write("\n");
-                        fw.write(record);
+                        fw.write(String.join("|",
+                                data[0], // ID
+                                data[1], // Transaction No
+                                data[2], // Name
+                                data[3], // Date
+                                data[4], // Total
+                                data[5], // Paid
+                                data[6], // Balance
+                                data[7]  // Status
+                        ));
+                        fw.write(System.lineSeparator());
                     }
 
-                    // Update reservation status
-                    data[7] = "Guest Checked-In";
-                    updatedLines.add(String.join("|", data));
-
                     checkedInSuccess = true;
+
+                    // IMPORTANT: do NOT write to temp → removes from RESERVE
                     continue;
                 }
 
-                updatedLines.add(line);
+                // Keep other records
+                bw.write(line);
+                bw.newLine();
             }
 
         } catch (IOException e) {
-            System.out.println("Error reading reservations.");
+            System.out.println("Error processing check-in.");
             return;
         }
 
         if (!found) {
+            tempFile.delete();
             System.out.println("Reservation not found.");
             return;
         }
 
-        try (FileWriter fw = new FileWriter(reserveFile, false)) {
-            for (String l : updatedLines) {
-                fw.write(l + "\n");
+        // Replace original file
+        if (reserveFile.delete() && tempFile.renameTo(reserveFile)) {
+            if (checkedInSuccess) {
+                System.out.println("Guest successfully checked in.");
+                updateClientAvailStatus(input, "Guest Checked-In");
             }
+        } else {
+            System.out.println("Error updating reservation records.");
+        }
+    }
+
+    private static void updateClientAvailPaymentStatus(String identifier, String newStatus) {
+        File tempFile = new File("TEMP_CLIENT_AVAIL.txt");
+
+        try (
+                BufferedReader br = new BufferedReader(new FileReader(clientAvail));
+                BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile))
+        ) {
+
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+
+                if (data.length >= 15 &&
+                        (data[0].equals(identifier) || data[2].equals(identifier))) {
+
+                    data[13] = newStatus; // payment status column
+                    line = String.join("|", data);
+                }
+
+                bw.write(line);
+                bw.newLine();
+            }
+
         } catch (IOException e) {
-            System.out.println("Error updating check-in.");
+            System.out.println("Error updating payment status.");
+            return;
         }
 
-        if (checkedInSuccess) {
-            System.out.println("Guest successfully checked in.");
-        }
+        clientAvail.delete();
+        tempFile.renameTo(clientAvail);
     }
 
     private static void pressToBack() {
