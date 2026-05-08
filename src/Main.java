@@ -1918,7 +1918,7 @@ public class Main {
 
                     checkedInSuccess = true;
 
-                    // IMPORTANT: do NOT write to temp → removes from RESERVE
+                    
                     continue;
                 }
 
