@@ -2,24 +2,26 @@ DLSL Hotel Reservation System
 
 DESCRIPTION
 
-  The DLSL Hotel Reservation System is a console-based application developed in Java that 
-allows users to manage hotel reservations efficiently. The system supports multiple user 
-roles, including clients, receptionists, and managers, each with specific functionalities. 
-Clients can register, generate a unique client ID, and make reservations by selecting room 
-types, number of guests, and additional services such as food. Receptionists and managers can
-view records, manage reservations, and handle check-in and check-out processes. The system uses 
-text files for data storage and implements input validation, file handling, and basic data processing 
-to ensure accurate and organized hotel operations.
+  The DLSL Hotel Reservation System is a console-based Java application designed to manage hotel reservations efficiently through role-based access for Clients, Receptionists, and Managers. The system allows clients to register personal information, generate a unique Client ID, make room reservations, select additional services such as food offers, choose payment plans, and receive a unique Transaction Number for reservation verification. Receptionists and managers can manage reservations, monitor records, process guest check-ins and check-outs, sort and filter reservation data, and handle reservation cancellations. The system uses text files for data storage and implements input validation, file handling, date processing, and basic data management to maintain organized hotel operations.
 
 FEATURES
 - Client registration with input validation
 - Unique Client ID generation
-- Room reservation system
+- Unique Transaction Number generation
+- Room reservation and accommodation selection
 - Food service selection (Lunch and Dinner)
-- Payment plan options (30%, 50%, or full payment)
-- Check-in and check-out functionality
-- Reservation cancellation
-- Viewing, sorting, and filtering of records
+- Reservation receipt generation
+- Payment plan options:
+- 30% Down Payment
+- 50% Down Payment
+- Full Payment
+- Reservation status tracking
+- Check-in and check-out management
+- Reservation cancellation system
+- Viewing reservation records
+- Sorting reservations by date
+- Filtering fully paid and partial reservations
+- Checked-in and checked-out guest monitoring
 - File-based data storage system
 
 HOW TO RUN/ USE
@@ -33,16 +35,26 @@ USER ROLES
 1. Client
 - Register personal information
 - Generate Client ID
-- Make reservations and select services
+- Make reservations
+- Select room accommodations
+- Choose food services
+- Select payment plans
+- Receive a Transaction Number for reservation verification
 
 2. Receptionist
 - View client and reservation records
 - Check-in and check-out guests
+- Verify Client ID and Transaction Number
+- Filter fully paid and partial reservations
+- Sort reservations by date
 
 3. Manager
-- View all system records
+- View all client records
+- View reservation records
 - Monitor checked-in and checked-out guests
-- Cancel reservations and view cancelled records
+- Cancel reservations
+- View cancelled reservation records
+- Access reservation monitoring features
 
 TECHNOLOGIES USED
 - Java (Core Java)
@@ -50,6 +62,7 @@ TECHNOLOGIES USED
 - ArrayList
 - Regular Expressions (Regex)
 - Date Handling (LocalDate)
+- Random Number Generation
 
 FILES USED
 - CLIENT.txt – stores client information
@@ -72,4 +85,6 @@ NOTES
 - The system is console-based and does not include a graphical user interface.
 - All data is stored locally using text files.
 - Input validation is implemented to ensure correct data entry.
+- Check-in requires both: client ID and transaction ID.
+- Remaining balances must be fully paid before successful check-in.
 - The system supports basic hotel management operations only
