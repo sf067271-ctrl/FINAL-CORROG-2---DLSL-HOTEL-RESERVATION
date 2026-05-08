@@ -592,7 +592,7 @@ public class Main {
     }
 
     // Validation for a Y/N input
-    private static boolean yesOrNolValidation() {
+    private static boolean yesOrNoValidation() {
         boolean isValid = false;
         boolean isValidated = false;
         String userInput;
@@ -629,7 +629,7 @@ public class Main {
         System.out.print(confirm);
 
         System.out.println("To continue your reservation, please type (Y/N): ");
-        boolean isConfirmed = yesOrNolValidation();
+        boolean isConfirmed = yesOrNoValidation();
 
         if (isConfirmed) {
             reservationTransaction();
@@ -1214,7 +1214,7 @@ public class Main {
 
         // Prompt the client if they want to see the descriptions of each Facility
         System.out.println("\nDo you want to view the descriptions of each Facilities? (Y/N)");
-        boolean isView = yesOrNolValidation();
+        boolean isView = yesOrNoValidation();
 
         if (isView) facilitiesDescriptions(numberOfGuests);
 
@@ -1275,13 +1275,12 @@ public class Main {
         System.out.println("\n\n=== FOOD OFFERINGS ===");
         System.out.println("\nBreakfast are free for reservation.");
         System.out.println("\nWe offer Lunch and Dinner. \nWould you like to avail the offer? (Y/N)");
-        boolean userChoice = yesOrNolValidation();
+        boolean userChoice = yesOrNoValidation();
 
         if (userChoice) food = lunchAndDinner(numberOfGuests, 0);
 
         totalBalance += totalExcess;
         totalBalance += food;
-
 
         boolean confirmed = confirmationOfReservation(
                 totalBalance, food,
@@ -1390,7 +1389,6 @@ public class Main {
         int food = 0;
 
         while (!isValid) {
-            printGuestLeftFood(guestsRemain);
             int userInput = userChoiceValidation("lunchAndDinnerOffer");
 
             if (userInput == 1) {
@@ -1434,7 +1432,7 @@ public class Main {
         if (guestsRemain > 0) {
             System.out.printf("\n%d have availed the offer. %d guest can still avail the offer.", food, guestsRemain);
             System.out.print("\nWould you like to avail the offer again? (Y/N)\n");
-            boolean offerAgain = yesOrNolValidation();
+            boolean offerAgain = yesOrNoValidation();
 
             if (offerAgain) {
                 foodBalance += lunchAndDinner(guestsRemain, 0);
@@ -1559,7 +1557,7 @@ public class Main {
 
         System.out.print("\nType Y/N to confirm your payment plan: \n");
 
-        boolean isConfirmed = yesOrNolValidation();
+        boolean isConfirmed = yesOrNoValidation();
 
         if (isConfirmed) {
             double paidAmount;
@@ -1576,6 +1574,8 @@ public class Main {
 
             clientReserveFileUpdater(totalBalance, paidAmount, balance, paymentStatus, date, clientTN);
             printTransactionMessage(clientTN);
+        } else {
+            client();
         }
         return isConfirmed;
     }
@@ -1690,7 +1690,7 @@ public class Main {
 
         // Ask if the user is registered or not
         System.out.println("Have you already registered? (Y/N): ");
-        boolean isRegistered = yesOrNolValidation();
+        boolean isRegistered = yesOrNoValidation();
 
         if (isRegistered) {
             reservationTransaction();
@@ -1714,6 +1714,7 @@ public class Main {
 
         ArrayList<String> headers = new ArrayList<>();
         headers.add("ID");
+        headers.add("Transaction Number");
         headers.add("Name");
         headers.add("Date");
         headers.add("Total Balance");
@@ -1727,9 +1728,10 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
 
-                if (data.length >= 7) {
+                if (data.length >= 8) {
                     rows.add(new String[]{
                             data[0].trim(),
+                            data[1].trim(),
                             data[2].trim(),
                             data[3].trim(),
                             data[4].trim(),
@@ -1776,7 +1778,7 @@ public class Main {
                 if (data.length >= 7) {
 
                     String id = data[0].trim();
-                    String name = data[1].trim();
+                    String name = data[2].trim();
                     double balance = Double.parseDouble(data[6].trim());
 
                     boolean match = false;
@@ -1877,7 +1879,7 @@ public class Main {
                         System.out.printf("Remaining balance: ₱ %,.2f\n", balance);
                         System.out.print("Pay remaining balance now? (Y/N): ");
 
-                        boolean willPay = yesOrNolValidation();
+                        boolean willPay = yesOrNoValidation();
 
                         if (willPay) {
                             paid += balance;
@@ -1918,7 +1920,7 @@ public class Main {
 
                     checkedInSuccess = true;
 
-                    
+                    // IMPORTANT: do NOT write to temp → removes from RESERVE
                     continue;
                 }
 
