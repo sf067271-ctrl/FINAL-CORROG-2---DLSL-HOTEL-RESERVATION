@@ -15,7 +15,6 @@ public class Main {
     /// TN-14 NUMBERS BETWEEN (0-9) - DONE
     /// FIX SUCCESS CHECK-IN MESSAGE IN FAIL CHECK-IN - DONE
     /// THE TEXT FILES MUST BE CREATED FIRST NOT PRE MADE - DONE
-    ///
     /// MAKE SURE TO SAVE THE ROOMS THEY HAVE PICKED IN A TEXT FILE - DONE
 
     // TEXT FILES
@@ -345,8 +344,8 @@ public class Main {
 
     private static void checkOutGuests() {
 
-        System.out.print("=== Enter Client ID or Transaction Number or Full Name ===\n\n");
-        System.out.print("Enter Name or Client ID or Transaction Number: ");
+        System.out.print("=== Enter Transaction Number===\n\n");
+        System.out.print("Enter Transaction Number: ");
         String input = sc.nextLine();
 
         File tempFile = new File("temp.txt");
@@ -770,7 +769,7 @@ public class Main {
                     String status = data[14].trim();
 
                     // Store each row in the array
-                    rows.add(new String[]{id, name, clientTN, guests,single, doubles, king, suite, lunch, dinner, both, excess,total, status});
+                    rows.add(new String[]{id, name, clientTN, guests,single, doubles, king, suite, lunch, dinner, both, excess,total, paymentStatus,status});
                 }
             }
 
@@ -912,15 +911,15 @@ public class Main {
                     String name = data[2].trim();
 
                     String total = String.format("₱ %,.2f",
-                            Double.parseDouble(data[3].trim()));
-
-                    String paid = String.format("₱ %,.2f",
                             Double.parseDouble(data[4].trim()));
 
-                    String balance = String.format("₱ %,.2f",
+                    String paid = String.format("₱ %,.2f",
                             Double.parseDouble(data[5].trim()));
 
-                    String dateIn = data[6].trim();
+                    String balance = String.format("₱ %,.2f",
+                            Double.parseDouble(data[6].trim()));
+
+                    String dateIn = data[3].trim();
                     String dateOut = data[7].trim();
 
                     rows.add(new String[]{
@@ -1109,7 +1108,7 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
                 if (data.length >= 4) {
-                    rows.add(new String[]{data[0].trim(), data[1].trim()});
+                    rows.add(new String[]{data[0].trim(), data[2].trim()});
                 }
             }
         } catch (IOException e) {
@@ -1350,8 +1349,7 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
 
-                if (data.length >= 14 &&
-                        (data[0].equals(identifier) || data[2].equals(identifier))) {
+                if (data.length >= 14 && (data[2].equals(identifier))) {
 
                     data[14] = newStatus; // status column
                     line = String.join("|", data);
@@ -1747,11 +1745,11 @@ public class Main {
             return;
         }
 
-//        rows.sort((a, b) -> {
-//            LocalDate d1 = parseDate(a[3]);
-//            LocalDate d2 = parseDate(b[]);//mag run lang aq
-//            return d1.compareTo(d2);
-//        });
+        rows.sort((a, b) -> {
+            LocalDate d1 = parseDate(a[3]);
+            LocalDate d2 = parseDate(b[3]);
+            return d1.compareTo(d2);
+        });
 
         System.out.println("\n=== SORTED RESERVATIONS BY DATE ===");
 
@@ -1810,7 +1808,7 @@ public class Main {
 
         System.out.println();
         System.out.print("====== Guest Check-In ======\n");
-        System.out.print("Enter Client ID or Transaction Number: ");
+        System.out.print("Enter Transaction Number: ");
         String input = sc.nextLine().trim();
 
         File tempFile = new File("TEMP_RESERVE.txt");
@@ -1964,8 +1962,7 @@ public class Main {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
 
-                if (data.length >= 15 &&
-                        (data[0].equals(identifier) || data[2].equals(identifier))) {
+                if (data.length >= 15 && (data[2].equals(identifier))) {
 
                     data[13] = newStatus; // payment status column
                     line = String.join("|", data);
